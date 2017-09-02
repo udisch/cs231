@@ -31,23 +31,23 @@ def softmax_loss_naive(W, X, y, reg):
   # regularization!                                                           #
   #############################################################################
   num_classes = W.shape[1]
-  num_examples = X.shape[0]
-  
-  losses = np.zeros(num_examples)
-  scores = X.dot(W)
-  scores -= np.max(scores)
-  for i in range(num_examples):
-    f_yi = 0.0
-    f_j_sum = 0.0
-    for j in range(num_classes):
-      f = scores[i][j]
-      if j == y[i]:
-        f_yi = f
-      else:
-        f_j_sum += np.exp(f)
-    losses[i] = -f_yi + np.log(f_j_sum)
+  num_train = X.shape[0]
 
-  loss = np.sum(losses) / num_examples
+
+  for i in range(num_train):
+    f_i = X[i].dot(W)
+    f_i -= np.max(f_i)
+    loss += -np.log(np.exp(f_i[y[i]]) / np.sum(np.exp(f_i)))
+     
+    # gradient, based on https://github.com/bruceoutdoors/CS231n
+    for j in range(num_classes):
+      p_j = np.exp(f_i[j]) / np.sum(np.exp(f_i))
+      dW[:,j] += (p_j - (j == y[i])) * X[i]
+
+  loss /= num_train
+  loss += reg * np.sum(W * W)
+  dW /= num_train
+  dW += reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
