@@ -37,7 +37,7 @@ def softmax_loss_naive(W, X, y, reg):
   for i in range(num_train):
     f_i = X[i].dot(W)
     f_i -= np.max(f_i)
-    loss += -np.log(np.exp(f_i[y[i]]) / np.sum(np.exp(f_i)))
+    loss -= np.log(np.exp(f_i[y[i]]) / np.sum(np.exp(f_i)))
      
     # gradient, based on https://github.com/bruceoutdoors/CS231n
     for j in range(num_classes):
@@ -71,7 +71,20 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  f = X.dot(W)
+  # subtract max from each row
+  m = np.max(f, axis=1)
+  f -= np.reshape(m, [num_train, 1])
+  fi_by_row = f[np.arange(num_train), y]
+  nom = np.exp(fi_by_row)
+  denom = np.sum(np.exp(f), axis=1)
+  loss = np.sum(-np.log(nom / denom))
+
+  loss /= num_train
+  loss += reg * np.sum(W * W)
+  # dW /= num_train
+  # dW += reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
