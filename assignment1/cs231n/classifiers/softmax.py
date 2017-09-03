@@ -83,7 +83,7 @@ def softmax_loss_vectorized(W, X, y, reg):
   loss = np.sum(-np.log(softmax))
   
   # gradient based on https://github.com/w1ll1br0/cs231-2017
-  full_softmax = np.exp(f) / np.sum(np.exp(f), axis=1)[:,None] # what?
+  full_softmax = np.exp(f) / np.sum(np.exp(f), axis=1)[:,None] # transpose the 1d array
   full_softmax[np.arange(num_train), y] -= 1
   dW = X.T.dot(full_softmax)
   
