@@ -100,7 +100,7 @@ class TwoLayerNet(object):
     # subtract max from each row
     m = np.max(f, axis=1)
     f -= np.reshape(m, [num_train, 1])
-    fi_by_row = f[np.arange(num_train), y]
+    fi_by_row = f[range(num_train), y]
     nom = np.exp(fi_by_row)
     denom = np.sum(np.exp(f), axis=1)
     softmax = nom / denom
@@ -120,7 +120,21 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    # softmax gradient
+    full_softmax = np.exp(f) / np.sum(np.exp(f), axis=1)[:,None] # transpose the 1d array
+    full_softmax[range(num_train), y] -= 1
+    full_softmax /= num_train
+    
+    # the gradient for b2 is [1, 1... ] * full_softmax 
+    # which is equivalent to sum of each column
+    grads['b2'] = np.sum(full_softmax, axis=0) 
+    grads['W2'] = h.T.dot(full_softmax) + reg*2*W2
+
+    dhidden = full_softmax.dot(W2.T)
+    dhidden[h <= 0] = 0
+
+    grads['W1'] = X.T.dot(dhidden) + reg*W1*2
+    grads['b1'] = np.sum(dhidden, axis = 0) # # equivalent to muliplying by a vector of 1s
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -164,7 +178,9 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      pass
+      rand_indices = np.random.choice(num_train, batch_size)
+      X_batch = X[rand_indices]
+      y_batch = y[rand_indices]
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -179,7 +195,8 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      pass
+      for param_name in self.params:
+        self.params[param_name] -= (learning_rate * grads[param_name])
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -190,6 +207,8 @@ class TwoLayerNet(object):
       # Every epoch, check train and val accuracy and decay learning rate.
       if it % iterations_per_epoch == 0:
         # Check accuracy
+
+        tmp = self.predict(X_batch)
         train_acc = (self.predict(X_batch) == y_batch).mean()
         val_acc = (self.predict(X_val) == y_val).mean()
         train_acc_history.append(train_acc)
@@ -224,7 +243,11 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+    W1, b1 = self.params['W1'], self.params['b1']
+    W2, b2 = self.params['W2'], self.params['b2']
+    h = X.dot(W1) + b1
+    scores = np.maximum(0,h).dot(W2) + b2
+    y_pred = np.argmax(scores, axis=1)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
