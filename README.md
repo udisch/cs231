@@ -1,1 +1,1 @@
-cs231 (Deep learning) assignments, work in progress
+cs231n 2017 (Deep learning) assignments, work in progress
