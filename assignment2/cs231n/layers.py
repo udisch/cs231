@@ -62,8 +62,8 @@ def affine_backward(dout, cache):
     x_reshape = x.reshape((N, D))
     dw = x_reshape.T.dot(dout)
     dx = dout.dot(w.T).reshape(x.shape)
-    db = dout.T.dot(np.ones(N))
-###########################################################################
+    db = np.sum(dout, axis=0)
+    ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     return dx, dw, db
