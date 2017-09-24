@@ -185,13 +185,11 @@ class FullyConnectedNet(object):
         ############################################################################
         prev_input_dim = input_dim
         for hidden_dim in range(1,self.num_layers):
-           self.params['W' + str(hidden_dim)] = np.random.normal(scale=weight_scale,
-                                             size=prev_input_dim*hidden_dim).reshape(prev_input_dim, hidden_dim)
+           self.params['W' + str(hidden_dim)] = weight_scale * np.random.randn(prev_input_dim,hidden_dim)
            self.params['b' + str(hidden_dim)] = np.zeros(hidden_dim)
            prev_input_dim = hidden_dim
 
-        self.params['W' + str(self.num_layers)] = np.random.normal(scale=weight_scale,
-                                             size=prev_input_dim*num_classes).reshape(prev_input_dim, num_classes)
+        self.params['W' + str(self.num_layers)] = weight_scale * np.random.rand(prev_input_dim, num_classes)
         self.params['b' + str(self.num_layers)] = np.zeros(num_classes)
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -292,15 +290,13 @@ class FullyConnectedNet(object):
         # gradients for last layer
         dz, dw_last, db_last = affine_backward(dsoftmax, caches[self.num_layers])
         grads['b' + str(self.num_layers)] = db_last
-        last_w = 'W' + str(self.num_layers)
-        grads[last_w] = dw_last + self.reg * self.params[last_w]
+        grads['W' + str(self.num_layers)] = dw_last + self.reg * self.params['W' + str(self.num_layers)]
 
         # rest of the hidden layers
         upstream_dx = dz
-        for layer in range(self.num_layers-1, 0, -1):
+        for layer in reversed(range(1, self.num_layers)):
             dx, dw, db = affine_relu_backward(upstream_dx, caches[layer])
-            w_layer = 'W' + str(layer)
-            grads[w_layer] = dw + self.reg * self.params[w_layer]
+            grads['W' + str(layer)] = dw + self.reg * self.params['W' + str(layer)]
             grads['b' + str(layer)] = db
             upstream_dx = dx
 
