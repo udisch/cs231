@@ -184,13 +184,13 @@ class FullyConnectedNet(object):
         # parameters should be initialized to zero.                                #
         ############################################################################
         prev_input_dim = input_dim
-        for hidden_dim in range(1,self.num_layers):
-           self.params['W' + str(hidden_dim)] = weight_scale * np.random.randn(prev_input_dim,hidden_dim)
-           self.params['b' + str(hidden_dim)] = np.zeros(hidden_dim)
+        for idx, hidden_dim in enumerate(hidden_dims):
+           self.params['W' + str(idx + 1)] = weight_scale * np.random.randn(prev_input_dim,hidden_dim)
+           self.params['b' + str(idx + 1)] = np.zeros(hidden_dim,)
            prev_input_dim = hidden_dim
 
         self.params['W' + str(self.num_layers)] = weight_scale * np.random.rand(prev_input_dim, num_classes)
-        self.params['b' + str(self.num_layers)] = np.zeros(num_classes)
+        self.params['b' + str(self.num_layers)] = np.zeros(num_classes,)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
