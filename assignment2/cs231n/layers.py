@@ -482,7 +482,21 @@ def max_pool_forward_naive(x, pool_param):
     ###########################################################################
     # TODO: Implement the max pooling forward pass                            #
     ###########################################################################
-    pass
+    N, C, H, W = x.shape
+    h = pool_param['pool_height']
+    w = pool_param['pool_width']
+    stride = pool_param['stride']
+
+    w_out = int((W - w) / stride + 1)
+    h_out = int((H - h) / stride + 1)
+
+    out = np.zeros([N, C, h_out, w_out])
+
+    for data in range(N):
+        for c in range(C):
+            for i in range(w_out):
+                for j in range(h_out):
+                    out[data, c, i, j] = np.max(x[data, c, i*stride:i*stride+h, j*stride:j*stride+w])
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -505,7 +519,26 @@ def max_pool_backward_naive(dout, cache):
     ###########################################################################
     # TODO: Implement the max pooling backward pass                           #
     ###########################################################################
-    pass
+    x, pool_param = cache
+    N, C, H, W = x.shape
+    h = pool_param['pool_height']
+    w = pool_param['pool_width']
+    stride = pool_param['stride']
+
+    h_out = dout.shape[2]
+    w_out = dout.shape[3]
+
+    dx = np.zeros(x.shape)
+    for data in range(N):
+        for c in range(C):
+            for i in range(h_out):
+                for j in range(w_out):
+                    # the gradient for max is calculated like this:
+                    # if the original corresponding value in x was the max, dx is 1, otherwise 0
+                    current = x[data, c, i*stride:i*stride+h, j*stride:j*stride+w]
+                    # convert from flat index to matrix index
+                    index = np.unravel_index(current.argmax(), current.shape)
+                    dx[data, c, index[0]+i*stride, index[1]+j*stride] = dout[data, c, i, j]  # 1 * dout
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
