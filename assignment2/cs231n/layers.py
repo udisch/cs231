@@ -401,7 +401,8 @@ def conv_forward_naive(x, w, b, conv_param):
         for filter in range(F):
             for i in range(out_w):
                 for j in range(out_h):
-                    out[input, filter, i, j] = np.sum(x_pad[input, :, i*stride:i*stride+HH, j*stride:j*stride+WW] *
+                    # 2nd dimension is number of color channels
+                    out[input, filter, i, j] += np.sum(x_pad[input, :, i*stride:i*stride+HH, j*stride:j*stride+WW] *
                                                       w[filter]) + b[filter]
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -427,7 +428,35 @@ def conv_backward_naive(dout, cache):
     ###########################################################################
     # TODO: Implement the convolutional backward pass.                        #
     ###########################################################################
-    pass
+    x, w, b, conv_param = cache
+    dw = np.zeros(w.shape)
+    db = np.zeros(b.shape)
+    pad = conv_param['pad']
+    stride = conv_param['stride']
+
+    # padding for the last 2 dimensions of x
+    npad = ((0, 0), (0, 0), (pad, pad), (pad, pad))
+    x_pad = np.pad(x, pad_width=npad, mode='constant')
+    dx_pad = np.zeros(x_pad.shape)
+    N, C, H, W = x.shape
+    F, C, HH, WW = w.shape
+    out_h = int(1 + (H + 2 * pad - HH) / stride)
+    out_w = int(1 + (W + 2 * pad - WW) / stride)
+
+    # based on https://github.com/w1ll1br0/cs231-2017
+    for data in range(N):
+        for filter in range(F):
+            for i in range(out_w):
+                for j in range(out_h):
+                    dw[filter] += x_pad[data, :, i*stride:i*stride+HH, j*stride:j*stride+WW] * dout[data, filter, i, j]
+                    dx_pad[data, :, i*stride:i*stride+HH, j*stride:j*stride+WW] += w[filter] * dout[data, filter, i, j]
+
+    # remove padding
+    dx = dx_pad[:, :, pad:pad+H, pad:pad+W]
+
+    # bias
+    for n in range(F):
+        db[n] = np.sum(dout[:, n, :, :])
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
