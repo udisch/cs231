@@ -576,7 +576,16 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     # version of batch normalization defined above. Your implementation should#
     # be very short; ours is less than five lines.                            #
     ###########################################################################
-    pass
+    # regular batchnorm parameters:
+    # x: Data of shape (N, C)
+    # - gamma: Scale parameter of shape (C,)
+    # - beta: Shift paremeter of shape (C,)
+    N, C, H, W = x.shape
+    # almost got it right. need to also transpose the dimensions so C is at the end
+    out_shape, cache = batchnorm_forward(x.transpose(0, 2, 3, 1).reshape(N*H*W, C),
+                                         gamma=gamma, beta=beta, bn_param=bn_param)
+    # when doing reshaped remember dimensions are transposed
+    out = out_shape.reshape(N, H, W, C).transpose(0, 3, 1, 2)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -606,7 +615,9 @@ def spatial_batchnorm_backward(dout, cache):
     # version of batch normalization defined above. Your implementation should#
     # be very short; ours is less than five lines.                            #
     ###########################################################################
-    pass
+    N, C, H, W = dout.shape
+    dx, dgamma, dbeta = batchnorm_backward(dout.transpose(0, 2, 3, 1).reshape(N*H*W, C), cache)
+    dx = dx.reshape(N, H, W, C).transpose(0, 3, 1, 2)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
