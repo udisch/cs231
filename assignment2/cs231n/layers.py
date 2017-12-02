@@ -178,8 +178,8 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # variance, storing your result in the running_mean and running_var   #
         # variables.                                                          #
         #######################################################################
-        sample_mean = np.mean(x, axis = 0)
-        sample_var = np.var(x, axis = 0)
+        sample_mean = np.mean(x, axis=0)
+        sample_var = np.var(x, axis=0)
         # normalize: x - mean / sqrt(variance), epsilon avoids division by zero
         x_norm = (x - sample_mean) / np.sqrt(sample_var + eps)
         out = gamma * x_norm + beta
@@ -237,11 +237,11 @@ def batchnorm_backward(dout, cache):
     x, x_norm, gamma, beta, mean, var, eps = cache
     N = dout.shape[0]
     dx_norm = dout * gamma
-    dvar = np.sum((dx_norm * (x - mean) * (-0.5) * (var + eps)**(-1.5)), axis = 0)
-    dmean = np.sum(dx_norm*(-1/np.sqrt(var + eps)), axis = 0) + np.sum(dvar * (-2)*(x-mean), axis = 0)*(1/x.shape[0])
+    dvar = np.sum((dx_norm * (x - mean) * (-0.5) * (var + eps)**(-1.5)), axis=0)
+    dmean = np.sum(dx_norm*(-1/np.sqrt(var + eps)), axis=0) + np.sum(dvar * (-2)*(x-mean), axis=0)*(1/x.shape[0])
     dx = dx_norm*(1/np.sqrt(var + eps)) + dvar * 2 * (x - mean)/x.shape[0] + dmean/x.shape[0]
-    dgamma = (dout * x_norm).sum(axis = 0)
-    dbeta = dout.sum(axis = 0)
+    dgamma = (dout * x_norm).sum(axis=0)
+    dbeta = dout.sum(axis=0)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -310,7 +310,7 @@ def dropout_forward(x, dropout_param):
         # TODO: Implement training phase forward pass for inverted dropout.   #
         # Store the dropout mask in the mask variable.                        #
         #######################################################################
-        mask = (np.random.rand(*x.shape) < p) / p # also scale, inverted dropout
+        mask = (np.random.rand(*x.shape) < p) / p  # also scale, inverted dropout
         out = x * mask
         #######################################################################
         #                           END OF YOUR CODE                          #
